@@ -64,6 +64,7 @@ add_message_files(
         Position.msg
         Velocity.msg
         Current.msg
+        posCurr.msg
 )
 
 ## Generate services in the 'srv' folder
