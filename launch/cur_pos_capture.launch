@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="ros_dynamixel" type="read_current.py" name="read_current" output="screen">
+    </node>
+</launch>
