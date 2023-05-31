@@ -187,7 +187,7 @@ include_directories(
 #   scripts/my_python_script
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
-catkin_install_python(PROGRAMS scripts/read_current.py scripts/read_pos.py
+catkin_install_python(PROGRAMS scripts/read_current.py scripts/read_pos.py scripts/readWrite_pos_current.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
