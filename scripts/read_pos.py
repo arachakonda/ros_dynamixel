@@ -20,10 +20,11 @@ else:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         return ch
 
+
 # Control table address
 ADDR_TORQUE_ENABLE      = 64               # Control table address is different in Dynamixel model
 ADDR_GOAL_POSITION      = 116
-ADDR_PRESENT_CURRENT = 126
+ADDR_PRESENT_POS = 132
 
 # Protocol version
 PROTOCOL_VERSION            = 2.0               # See which protocol version is used in the Dynamixel
@@ -40,14 +41,13 @@ DXL_MINIMUM_POSITION_VALUE  = 0               # Dynamixel will rotate between th
 DXL_MAXIMUM_POSITION_VALUE  = 1000            # and this value (note that the Dynamixel would not move when the position value is out of movable range. Check e-manual about the range of the Dynamixel you use.)
 DXL_MOVING_STATUS_THRESHOLD = 20                # Dynamixel moving status threshold
 
-CURRENT_LIMIT = 3000
-
+POSITION_LIMIT = 4096
 
 portHandler = PortHandler(DEVICENAME)
 packetHandler = PacketHandler(PROTOCOL_VERSION)
 
-def get_present_current(id):
-    dxl_present_pos, dxl_comm_resut, dxl_error = packetHandler.read4ByteTxRx(portHandler, id, ADDR_PRESENT_CURRENT)
+def get_present_pos(id):
+    dxl_present_pos, dxl_comm_resut, dxl_error = packetHandler.read4ByteTxRx(portHandler, id, ADDR_PRESENT_POS)
     return dxl_present_pos
 
 def check_limit(val, limit):
@@ -78,28 +78,29 @@ def set_baudrate(portHandler, baudrate):
         getch()
         quit()
 
-def read_current(id):
-    pub = rospy.Publisher('current', Current, queue_size=10)
-    rospy.init_node('read_current', anonymous=True)
+def read_pos(id):
+    pub = rospy.Publisher('position', Position, queue_size=10)
+    rospy.init_node('read_pos', anonymous=True)
     rate = rospy.Rate(10)
-    current = Current()
+    position = Position()
     while not rospy.is_shutdown():
-        current.id = id
-        cur = get_present_current(id)
-        current.current = cur if check_limit(cur,CURRENT_LIMIT) else current.current
-        current.time = int(rospy.get_time())
-        print("Present Current of ID %s = %s" % (id,current.current))
+        position.id = id
+        pos = get_present_pos(id)
+        position.position = pos if check_limit(pos, POSITION_LIMIT) else position.position
+        position.time = int(rospy.get_time())
+        print("Present Position of ID %s = %s" % (id,position.position))
         rate.sleep()
-
 
 def main():
     open_port(portHandler)
     set_baudrate(portHandler, BAUDRATE)
 
     try:
-        read_current(DXL_ID)
+        read_pos(DXL_ID)
     except rospy.ROSInterruptException:
         pass
+
+
 
 if __name__ == '__main__':
     main()
