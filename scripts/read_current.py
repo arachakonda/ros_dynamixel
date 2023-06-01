@@ -11,7 +11,6 @@ portHandler = PortHandler(DEVICENAME)
 packetHandler = PacketHandler(PROTOCOL_VERSION)
 
 
-
 def read_current(id):
     pub = rospy.Publisher('current', Current, queue_size=10)
     rospy.init_node('read_current', anonymous=True)

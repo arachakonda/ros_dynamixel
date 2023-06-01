@@ -1,11 +1,12 @@
 # Control table address
 ADDR_TORQUE_ENABLE      = 64               # Control table address is different in Dynamixel model
-ADDR_GOAL_POSITION      = 116
+ADDR_GOAL_POS      = 116
 ADDR_PRESENT_CURRENT = 126
 ADDR_PRESENT_POS = 132
 
 LEN_PRESENT_POS = 4
 LEN_PRESENT_CURRENT = 2
+LEN_GOAL_POS = 4
 
 LEN_PRESENT_DATA = 10
 
