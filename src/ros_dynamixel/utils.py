@@ -1,6 +1,8 @@
 #!usr/bin/env python3
 import rospy
 import os
+from ros_dynamixel.vars import *
+from ros_dynamixel.comms import *
 
 def configure_shell_inputs():
     if os.name == 'nt':
@@ -36,11 +38,12 @@ def open_port(portHandler):
         getch()
         quit()
 
-def close_port(portHandler):
+def close_port(portHandler,groupBulkRead):
     # Open port
     try:
+       clearBR(groupBulkRead)
        portHandler.closePort()
-       print("Succeeded to open the port")
+       print("Succeeded to close the port")
     except:
         print("Failed to open the port")
         print("Press any key to terminate...")
@@ -57,3 +60,9 @@ def set_baudrate(portHandler, baudrate):
         print("Press any key to terminate...")
         getch()
         quit()
+
+def calcVelProf(ros_freq, pos_inc):
+    rev = pos_inc/POSITION_LIMIT
+    rev_vel = rev*ros_freq
+    vel_prof_max = rev_vel/REV_FACTOR
+    return int(vel_prof_max)

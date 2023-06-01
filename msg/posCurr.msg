@@ -1,4 +1,4 @@
 uint8 id
-uint16 position
+int32 position
 uint16 current
 uint32 time

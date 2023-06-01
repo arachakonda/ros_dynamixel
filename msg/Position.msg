@@ -1,3 +1,3 @@
 uint8 id
-uint16 position
+int16 position
 uint32 time
