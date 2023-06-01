@@ -4,14 +4,13 @@ from dynamixel_sdk import *
 from ros_dynamixel.msg import *
 from ros_dynamixel.utils import *
 from ros_dynamixel.vars import *
+from ros_dynamixel.comms import *
 
 
 portHandler = PortHandler(DEVICENAME)
 packetHandler = PacketHandler(PROTOCOL_VERSION)
 
-def get_present_current(id):
-    dxl_present_pos, dxl_comm_resut, dxl_error = packetHandler.read4ByteTxRx(portHandler, id, ADDR_PRESENT_CURRENT)
-    return dxl_present_pos
+
 
 def read_current(id):
     pub = rospy.Publisher('current', Current, queue_size=10)
