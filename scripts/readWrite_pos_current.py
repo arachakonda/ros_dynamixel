@@ -32,6 +32,21 @@
 #
 # Author: Ananth Rachakonda
 #******************************************************************************/
+
+#*******************************************************************************
+# The flow of the code is as follows:
+# 1) first open port using the portHandler object to communcate with U2D2
+# 2) set the baudrate of that port to communcate with DYNAMIXELs
+# 3) set operation mode of the DYNAMIXELs to POSITION_CONTROL_MODE
+# 4) enable torque on the DYNAMIXELs
+# 5) add bulkRead Parameters; note that you can add the starting address and
+#    and read multiple parameters of the DYNAMIXEL based on length specified
+# 6) create a message object posCurr
+# 7) home the DYNAMIXELs
+# 8) start the publisher for position and current
+#******************************************************************************/
+
+
 import os
 import rospy
 from dynamixel_sdk import *

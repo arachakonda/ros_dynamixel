@@ -66,3 +66,4 @@ def calcVelProf(ros_freq, pos_inc):
     rev_vel = rev*ros_freq
     vel_prof_max = rev_vel/REV_FACTOR
     return int(vel_prof_max)
+
