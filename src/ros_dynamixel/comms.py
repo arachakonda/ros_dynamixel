@@ -74,4 +74,33 @@ def bulkWrite(groupBulkWrite, packetHandler):
     if dxl_comm_result != COMM_SUCCESS:
         print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
     
+def disable_torque(portHandler, packetHandler, id):
+    dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, id, ADDR_TORQUE_ENABLE, TORQUE_DISABLE)
+    if dxl_comm_result != COMM_SUCCESS:
+        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+    elif dxl_error != 0:
+        print("%s" % packetHandler.getRxPacketError(dxl_error))
+    else:
+        print("Dynamixel#%d has been successfully disconnected" % id)
 
+def setOpMode(portHandler, packetHandler, id, mode):
+    disable_torque(portHandler, packetHandler, id)
+    dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, id, ADDR_OP_MODE, mode)
+    if dxl_comm_result != COMM_SUCCESS:
+        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+    elif dxl_error != 0:
+        print("%s" % packetHandler.getRxPacketError(dxl_error))
+    else:
+        print("Dynamixel#%d has been successfully shifted to mode %d" % (id,mode))
+
+    enable_torque(portHandler, packetHandler, id)
+
+def setProfVel(portHandler, packetHandler, id, val):
+    dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(portHandler, id, ADDR_PROF_VEL, val)
+    if dxl_comm_result != COMM_SUCCESS:
+        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+    elif dxl_error != 0:
+        print("%s" % packetHandler.getRxPacketError(dxl_error))
+    else:
+        pass
+        #print("Dynamixel#%d has been successfully fixed to velocity profile maximum %d" % (id,val))

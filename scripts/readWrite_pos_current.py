@@ -34,8 +34,10 @@ def readwrite_posCurr(id, groupBulkRead):
         #write position
         if check_limit(position, POSITION_LIMIT) and (poscurr.position < POSITION_LIMIT-10):
             position+=100
+            setProfVel(portHandler, packetHandler, DXL_ID, 64)
         else:
             position=0
+            setProfVel(portHandler, packetHandler, DXL_ID, 10)
         add_paramBW(groupBulkWrite, DXL_ID, ADDR_GOAL_POS, LEN_GOAL_POS, position)
         bulkWrite(groupBulkWrite, packetHandler)
         clearBW(groupBulkWrite)
@@ -46,12 +48,15 @@ def readwrite_posCurr(id, groupBulkRead):
 def main():
     open_port(portHandler)
     set_baudrate(portHandler, BAUDRATE)
+    setOpMode(portHandler, packetHandler, DXL_ID, POSITION_CONTROL_MODE)
     enable_torque(portHandler, packetHandler, DXL_ID)
     add_paramBR(groupBulkRead, DXL_ID, ADDR_PRESENT_CURRENT, LEN_PRESENT_DATA)
+    
     try:
         readwrite_posCurr(DXL_ID, groupBulkRead)
     except rospy.ROSInterruptException:
-        pass
+        close_port(portHandler)
+    close_port(portHandler)
 
 
 if __name__=='__main__':

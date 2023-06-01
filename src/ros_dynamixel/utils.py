@@ -36,6 +36,17 @@ def open_port(portHandler):
         getch()
         quit()
 
+def close_port(portHandler):
+    # Open port
+    try:
+       portHandler.closePort()
+       print("Succeeded to open the port")
+    except:
+        print("Failed to open the port")
+        print("Press any key to terminate...")
+        getch()
+        quit()
+
 def set_baudrate(portHandler, baudrate):
     # Set port baudrate
     try:
