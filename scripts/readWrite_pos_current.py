@@ -45,8 +45,6 @@
 # 7) home the DYNAMIXELs
 # 8) start the publisher for position and current
 #******************************************************************************/
-
-
 import os
 import rospy
 from dynamixel_sdk import *
@@ -54,6 +52,8 @@ from ros_dynamixel.msg import *
 from ros_dynamixel.vars import *
 from ros_dynamixel.utils import *
 from ros_dynamixel.comms import *
+import serial
+import time
 
 portHandler = PortHandler(DEVICENAME)
 packetHandler = PacketHandler(PROTOCOL_VERSION)
@@ -61,12 +61,30 @@ packetHandler = PacketHandler(PROTOCOL_VERSION)
 groupBulkWrite = GroupBulkWrite(portHandler, packetHandler)
 groupBulkRead = GroupBulkRead(portHandler, packetHandler)
 
+arduino = serial.Serial('/dev/ttyUSB1', 9600)
+time.sleep(2)
+
+def readSerial():
+    b = arduino.readline()
+    print(b)
+    try:
+        angles = [float(str) for str in b.decode().rstrip().split(',')]
+        print(angles)
+        return angles[0],angles[1]
+    except:
+        pass
+
+
 def read_pos_curr(groupBulkRead,packetHandler,id,poscurr):
     poscurr.id = id
     bulkRead(groupBulkRead, packetHandler)
     poscurr.position = extractData(groupBulkRead, id, ADDR_PRESENT_POS, LEN_PRESENT_POS)
     poscurr.current = extractData(groupBulkRead, id, ADDR_PRESENT_CURRENT, LEN_PRESENT_CURRENT)
-    poscurr.time = int(rospy.get_time())
+    try:
+        poscurr.theta,poscurr.psi = readSerial()
+    except:
+        poscurr.theta = 0
+        poscurr.psi = 0
 
 def home_pos(portHandler, packetHandler, id, poscurr):
     setProfVel(portHandler, packetHandler, id, MAX_VEL_PROF_VAL)
@@ -90,13 +108,13 @@ def pub_posCurr(portHandler, packetHandler, groupBulkRead, groupBulkWrite, id, p
     ros_freq = 10
     rate = rospy.Rate(ros_freq)
     position = 0
-    pos_inc = 100
+    pos_inc = 10
     while not rospy.is_shutdown():
         #read current and position
         read_pos_curr(groupBulkRead, packetHandler,id,poscurr)
-        print("ID: %03d, Position: %04d, Current: %05d, Time: %d"%(poscurr.id, poscurr.position, poscurr.current, poscurr.time))
+        print("ID: %03d, Position: %04d, Current: %05d, Theta: %.9f, Psi: %.9f"%(poscurr.id, poscurr.position, poscurr.current, poscurr.theta, poscurr.psi))
         #write position
-        if (poscurr.position < POSITION_LIMIT-pos_inc):
+        if (poscurr.position < POSITION_LIMIT/4 + 100 -pos_inc):
             position+=pos_inc
             vel_prof_max = calcVelProf(ros_freq, pos_inc)
             setProfVel(portHandler, packetHandler, DXL_ID, vel_prof_max)
@@ -105,6 +123,7 @@ def pub_posCurr(portHandler, packetHandler, groupBulkRead, groupBulkWrite, id, p
             home_pos(portHandler,packetHandler,id,poscurr)
 
         write_pos(groupBulkWrite, packetHandler, id, position)
+        pub.publish(poscurr)
         #sleep for enough time to match frequency of 10 Hz
         rate.sleep()
     
@@ -119,8 +138,11 @@ def main():
         poscurr = posCurr()
         home_pos(portHandler,packetHandler,DXL_ID,poscurr)
         pub_posCurr(portHandler, packetHandler, groupBulkRead, groupBulkWrite, DXL_ID, poscurr)
+        #time.sleep(500)
     except rospy.ROSInterruptException:
+        disable_torque(portHandler, packetHandler, DXL_ID)
         close_port(portHandler,groupBulkRead)
+    disable_torque(portHandler, packetHandler, DXL_ID)
     close_port(portHandler,groupBulkRead)
 
 
