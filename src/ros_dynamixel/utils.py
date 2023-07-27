@@ -4,22 +4,6 @@ import os
 from ros_dynamixel.vars import *
 from ros_dynamixel.comms import *
 
-def configure_shell_inputs():
-    if os.name == 'nt':
-        import msvcrt
-        def getch():
-            return msvcrt.getch().decode()
-    else:
-        import sys, tty, termios
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        def getch():
-            try:
-                tty.setraw(sys.stdin.fileno())
-                ch = sys.stdin.read(1)
-            finally:
-                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-            return ch
 
 def check_limit(val, limit):
     if(val>limit):
@@ -34,8 +18,6 @@ def open_port(portHandler):
        print("Succeeded to open the port")
     except:
         print("Failed to open the port")
-        print("Press any key to terminate...")
-        getch()
         quit()
 
 def close_port(portHandler,groupBulkRead):
@@ -46,8 +28,6 @@ def close_port(portHandler,groupBulkRead):
        print("Succeeded to close the port")
     except:
         print("Failed to open the port")
-        print("Press any key to terminate...")
-        getch()
         quit()
 
 def set_baudrate(portHandler, baudrate):
@@ -57,8 +37,6 @@ def set_baudrate(portHandler, baudrate):
         print("Succeeded to change the baudrate")
     except:
         print("Failed to change the baudrate")
-        print("Press any key to terminate...")
-        getch()
         quit()
 
 def calcVelProf(ros_freq, pos_inc):

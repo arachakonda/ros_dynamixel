@@ -18,7 +18,7 @@ def read_current(id):
     current = Current()
     while not rospy.is_shutdown():
         current.id = id
-        cur = get_present_current(id)
+        cur = get_present_current(id, portHandler, packetHandler)
         current.current = cur if check_limit(cur,CURRENT_LIMIT) else current.current
         current.time = int(rospy.get_time())
         print("Present Current of ID %s = %s" % (id,current.current))
@@ -26,7 +26,6 @@ def read_current(id):
 
 
 def main():
-    configure_shell_inputs()
     open_port(portHandler)
     set_baudrate(portHandler, BAUDRATE)
 

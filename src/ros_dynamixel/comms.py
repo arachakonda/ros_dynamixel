@@ -3,11 +3,11 @@ from dynamixel_sdk import *
 from ros_dynamixel.msg import *
 from ros_dynamixel.vars import *
 
-def get_present_current(id):
+def get_present_current(id, portHandler, packetHandler):
     dxl_present_pos, dxl_comm_resut, dxl_error = packetHandler.read4ByteTxRx(portHandler, id, ADDR_PRESENT_CURRENT)
     return dxl_present_pos
 
-def get_present_pos(id):
+def get_present_pos(id, portHandler, packetHandler):
     dxl_present_pos, dxl_comm_resut, dxl_error = packetHandler.read4ByteTxRx(portHandler, id, ADDR_PRESENT_POS)
     return dxl_present_pos
 

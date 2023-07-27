@@ -1,3 +1,2 @@
 uint8 id
 int16 current
-int32 time

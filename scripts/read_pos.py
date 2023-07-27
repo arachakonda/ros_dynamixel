@@ -14,25 +14,25 @@ def read_pos(id):
     pub = rospy.Publisher('position', Position, queue_size=10)
     rospy.init_node('read_pos', anonymous=True)
     rate = rospy.Rate(10)
-    position = Position()
+    position = Position() #message type
     while not rospy.is_shutdown():
         position.id = id
-        pos = get_present_pos(id)
+        pos = get_present_pos(id, portHandler, packetHandler)
         position.position = pos if check_limit(pos, POSITION_LIMIT) else position.position
         position.time = int(rospy.get_time())
         print("Present Position of ID %s = %s" % (id,position.position))
+        pub.publish(position)
         rate.sleep()
 
 def main():
-    configure_shell_inputs()
     open_port(portHandler)
     set_baudrate(portHandler, BAUDRATE)
-
+    setOpMode(portHandler, packetHandler, DXL_ID, POSITION_CONTROL_MODE)
+    enable_torque(portHandler, packetHandler, DXL_ID)
     try:
         read_pos(DXL_ID)
     except rospy.ROSInterruptException:
         pass
-
 
 
 if __name__ == '__main__':
