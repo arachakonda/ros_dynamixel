@@ -75,22 +75,7 @@ def read_pos_vel_curr(groupBulkRead,packetHandler,id,pos,vel,curr):
     curr.current = extractData(groupBulkRead, id, ADDR_PRESENT_CURR, LEN_PRESENT_CURR)
     
 
-def home_pos(portHandler, packetHandler, id, poscurr):
-    setProfVel(portHandler, packetHandler, id, MAX_VEL_PROF_VAL)
-    add_paramBW(groupBulkWrite, id, ADDR_GOAL_POS, LEN_GOAL_POS, 0)
-    bulkWrite(groupBulkWrite, packetHandler)
-    clearBW(groupBulkWrite)
-    while poscurr.position != 0:
-        read_pos_vel_curr(groupBulkRead,packetHandler,id, poscurr)
-        pass
-
-def write_pos(groupBulkWrite, packetHandler, id, position):
-    add_paramBW(groupBulkWrite, id, ADDR_GOAL_POS, LEN_GOAL_POS, position)
-    bulkWrite(groupBulkWrite, packetHandler)
-    clearBW(groupBulkWrite)
-
-
-def pub_pos(portHandler, packetHandler, groupBulkRead, groupBulkWrite, id, pos, vel, curr):
+def pub_pos_vel_curr(packetHandler, groupBulkRead, id, pos, vel, curr):
     pub_pos = rospy.Publisher('position', pos, queue_size=10)
     pub_vel = rospy.Publisher('velocity', vel, queue_size=10)
     pub_curr = rospy.Publisher('current', curr, queue_size=10)
@@ -100,7 +85,7 @@ def pub_pos(portHandler, packetHandler, groupBulkRead, groupBulkWrite, id, pos, 
     rate = rospy.Rate(ros_freq)
     while not rospy.is_shutdown():
         #read current and position
-        read_pos_vel_curr(groupBulkRead, packetHandler,id,pos,vel,curr)
+        read_pos_vel_curr(groupBulkRead, packetHandler, id, pos, vel, curr)
         print("ID: %03d, Position: %04d, Velocity: %0.4f, Current: %04d "%(pos.id, pos.position, vel.velocity, curr.current))
         pub_pos.publish(pos)
         pub_vel.publish(vel)
@@ -108,20 +93,17 @@ def pub_pos(portHandler, packetHandler, groupBulkRead, groupBulkWrite, id, pos, 
         #sleep for enough time to match frequency of 10 Hz
         rate.sleep()
 
-
-    
-
 def main():
     open_port(portHandler)
     set_baudrate(portHandler, BAUDRATE)
     setOpMode(portHandler, packetHandler, DXL_ID, POSITION_CONTROL_MODE)
     enable_torque(portHandler, packetHandler, DXL_ID)
-    add_paramBR(groupBulkRead, DXL_ID, ADDR_PRESENT_CUR, LEN_PRESENT_DATA)
+    add_paramBR(groupBulkRead, DXL_ID, ADDR_PRESENT_CURR, LEN_PRESENT_DATA)
     try:
         pos = Position()
         vel = Velocity()
         curr = Current()
-        pub_pos_vel_curr(portHandler, packetHandler, groupBulkRead, groupBulkWrite, DXL_ID, pos, vel, curr)
+        pub_pos_vel_curr(packetHandler, groupBulkRead, DXL_ID, pos, vel, curr)
     except rospy.ROSInterruptException:
         disable_torque(portHandler, packetHandler, DXL_ID)
         close_port(portHandler,groupBulkRead)
