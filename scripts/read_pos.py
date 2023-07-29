@@ -29,6 +29,7 @@ def main():
     set_baudrate(portHandler, BAUDRATE)
     setOpMode(portHandler, packetHandler, DXL_ID, POSITION_CONTROL_MODE)
     enable_torque(portHandler, packetHandler, DXL_ID)
+    disable_torque(portHandler, packetHandler, DXL_ID)
     try:
         read_pos(DXL_ID)
     except rospy.ROSInterruptException:

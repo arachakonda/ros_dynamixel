@@ -18,7 +18,7 @@ def enable_torque(portHandler, packetHandler, id):
     elif dxl_error != 0:
         print("%s" % packetHandler.getRxPacketError(dxl_error))
     else:
-        print("Dynamixel#%d has been successfully connected" % id)
+        print("Dynamixel#%d Torque is enabled" % id)
 
 def add_paramBR(groupBulkRead, id, param_addr, param_len):
     # Add parameter storage for Dynamixel#1 present position
@@ -39,6 +39,16 @@ def extractData(groupBulkRead, id, param_addr, param_len):
         print("[ID:%03d] groupBulkRead getdata failed" % id)
         quit()
     dxl_data = groupBulkRead.getData(id, param_addr, param_len)
+
+    if param_addr == ADDR_PRESENT_VEL:
+        if dxl_data > 2047:
+            #take 2's complement of 32 bit number
+            dxl_data = dxl_data - 4294967296
+    if param_addr == ADDR_PRESENT_CURR:
+        if dxl_data > 2047:
+            #take 2's complement of 32 bit number
+            dxl_data = dxl_data - 4294967296
+            
 
     return dxl_data
 
@@ -81,7 +91,7 @@ def disable_torque(portHandler, packetHandler, id):
     elif dxl_error != 0:
         print("%s" % packetHandler.getRxPacketError(dxl_error))
     else:
-        print("Dynamixel#%d has been successfully disconnected" % id)
+        print("Dynamixel#%d Torque is disabled" % id)
 
 def setOpMode(portHandler, packetHandler, id, mode):
     disable_torque(portHandler, packetHandler, id)

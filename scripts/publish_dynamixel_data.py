@@ -76,9 +76,10 @@ def read_pos_vel_curr(groupBulkRead,packetHandler,id,pos,vel,curr):
     
 
 def pub_pos_vel_curr(packetHandler, groupBulkRead, id, pos, vel, curr):
-    pub_pos = rospy.Publisher('position', pos, queue_size=10)
-    pub_vel = rospy.Publisher('velocity', vel, queue_size=10)
-    pub_curr = rospy.Publisher('current', curr, queue_size=10)
+    #print(pos)
+    pub_pos = rospy.Publisher('position', Position, queue_size=10)
+    pub_vel = rospy.Publisher('velocity', Velocity, queue_size=10)
+    pub_curr = rospy.Publisher('current', Current, queue_size=10)
     rospy.init_node('read_pos_vel_curr', anonymous=True)
     #set frequency of 10 Hz
     ros_freq = 10
@@ -99,14 +100,14 @@ def main():
     setOpMode(portHandler, packetHandler, DXL_ID, POSITION_CONTROL_MODE)
     enable_torque(portHandler, packetHandler, DXL_ID)
     add_paramBR(groupBulkRead, DXL_ID, ADDR_PRESENT_CURR, LEN_PRESENT_DATA)
+    disable_torque(portHandler, packetHandler, DXL_ID)
     try:
         pos = Position()
         vel = Velocity()
         curr = Current()
         pub_pos_vel_curr(packetHandler, groupBulkRead, DXL_ID, pos, vel, curr)
     except rospy.ROSInterruptException:
-        disable_torque(portHandler, packetHandler, DXL_ID)
-        close_port(portHandler,groupBulkRead)
+        print("ROS Node Terminated")
     disable_torque(portHandler, packetHandler, DXL_ID)
     close_port(portHandler,groupBulkRead)
 
