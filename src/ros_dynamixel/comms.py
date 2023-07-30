@@ -4,8 +4,12 @@ from ros_dynamixel.msg import *
 from ros_dynamixel.vars import *
 
 def get_present_current(id, portHandler, packetHandler):
-    dxl_present_pos, dxl_comm_resut, dxl_error = packetHandler.read4ByteTxRx(portHandler, id, ADDR_PRESENT_CURRENT)
-    return dxl_present_pos
+    dxl_present_curr, dxl_comm_resut, dxl_error = packetHandler.read4ByteTxRx(portHandler, id, ADDR_PRESENT_CURR)
+    return dxl_present_curr
+
+def get_present_velocity(id, portHandler, packetHandler):
+    dxl_present_vel, dxl_comm_resut, dxl_error = packetHandler.read4ByteTxRx(portHandler, id, ADDR_PRESENT_VEL)
+    return dxl_present_vel
 
 def get_present_pos(id, portHandler, packetHandler):
     dxl_present_pos, dxl_comm_resut, dxl_error = packetHandler.read4ByteTxRx(portHandler, id, ADDR_PRESENT_POS)
@@ -48,8 +52,6 @@ def extractData(groupBulkRead, id, param_addr, param_len):
         if dxl_data > 2047:
             #take 2's complement of 32 bit number
             dxl_data = dxl_data - 4294967296
-            
-
     return dxl_data
 
 def clearBR(groupBulkRead):
@@ -85,7 +87,7 @@ def bulkWrite(groupBulkWrite, packetHandler):
         print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
     
 def disable_torque(portHandler, packetHandler, id):
-    dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, id, ADDR_TORQUE_ENABLE, TORQUE_DISABLE)
+    dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler,  id, ADDR_TORQUE_ENABLE, TORQUE_DISABLE)
     if dxl_comm_result != COMM_SUCCESS:
         print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
     elif dxl_error != 0:

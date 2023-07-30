@@ -97,10 +97,10 @@ def pub_pos_vel_curr(packetHandler, groupBulkRead, id, pos, vel, curr):
 def main():
     open_port(portHandler)
     set_baudrate(portHandler, BAUDRATE)
-    setOpMode(portHandler, packetHandler, DXL_ID, POSITION_CONTROL_MODE)
-    enable_torque(portHandler, packetHandler, DXL_ID)
+    # setOpMode(portHandler, packetHandler, DXL_ID, POSITION_CONTROL_MODE)
+    # enable_torque(portHandler, packetHandler, DXL_ID)
     add_paramBR(groupBulkRead, DXL_ID, ADDR_PRESENT_CURR, LEN_PRESENT_DATA)
-    disable_torque(portHandler, packetHandler, DXL_ID)
+    # disable_torque(portHandler, packetHandler, DXL_ID)
     try:
         pos = Position()
         vel = Velocity()

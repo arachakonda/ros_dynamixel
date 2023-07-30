@@ -190,6 +190,7 @@ include_directories(
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
 catkin_install_python(PROGRAMS scripts/read_current.py scripts/read_pos.py scripts/readWrite_pos_current.py scripts/publish_dynamixel_data.py
+scripts/dynamixel_data_sync_read.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
