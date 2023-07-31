@@ -36,6 +36,13 @@ def bulkRead(groupBulkRead, packetHandler):
     if dxl_comm_result != COMM_SUCCESS:
         print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
 
+def syncRead(groupSyncRead, id, startAddr, dataLen):
+    try:
+        groupSyncRead.isAvailable(id, startAddr, dataLen)
+    except:
+        print("[ID:%03d] groupSyncRead getdata failed" % (id))
+    
+
 def extractData(groupBulkRead, id, param_addr, param_len):
     # Check if groupbulkread data of Dynamixel#1 is available
     dxl_getdata_result = groupBulkRead.isAvailable(id, param_addr, param_len)
@@ -116,3 +123,10 @@ def setProfVel(portHandler, packetHandler, id, val):
     else:
         pass
         #print("Dynamixel#%d has been successfully fixed to velocity profile maximum %d" % (id,val))
+
+def add_SyncReadIDs(groupSyncRead, DXL_IDS):
+    for id in DXL_IDS:
+        try:
+            groupSyncRead.addParam(id)
+        except:
+            print("Motor [ID:%03d] groupSyncRead addition failed" % id)
