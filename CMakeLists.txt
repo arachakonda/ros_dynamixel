@@ -57,6 +57,9 @@ catkin_python_setup()
 
 add_message_files(
     FILES
+        PositionSync.msg
+        VelocitySync.msg
+        CurrentSync.msg
         SetPosition.msg
         SetCurrent.msg
         SetVelocity.msg

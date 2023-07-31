@@ -1,8 +1,8 @@
-uint8 id1
-uint8 id2
-uint8 id3
-uint8 id4
-int16 curr1
-int16 curr2
-int16 curr3
-int16 curr4
+uint8 id_mcpf
+uint8 id_mcpa
+uint8 id_pip
+uint8 id_dip
+int16 curr_mcpf
+int16 curr_mcpa
+int16 curr_pip
+int16 curr_dip

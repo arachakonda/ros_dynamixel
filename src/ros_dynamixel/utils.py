@@ -27,6 +27,16 @@ def close_port(portHandler,groupBulkRead):
        portHandler.closePort()
        print("Succeeded to close the port")
     except:
+        print("Failed to close the port")
+        quit()
+
+def close_port_SR(portHandler,groupSyncRead):
+    # Open port
+    try:
+       clearSR(groupSyncRead)
+       portHandler.closePort()
+       print("Succeeded to close the port")
+    except:
         print("Failed to open the port")
         quit()
 

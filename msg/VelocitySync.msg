@@ -1,8 +1,8 @@
-uint8 id1
-uint8 id2
-uint8 id3
-uint8 id4
-int16 vel1
-int16 vel2
-int16 vel3
-int16 vel4
+uint8 id_mcpf
+uint8 id_mcpa
+uint8 id_pip
+uint8 id_dip
+int16 vel_mcpf
+int16 vel_mcpa
+int16 vel_pip
+int16 vel_dip

@@ -108,7 +108,7 @@ def main():
         pub_pos_vel_curr(packetHandler, groupBulkRead, DXL_ID, pos, vel, curr)
     except rospy.ROSInterruptException:
         print("ROS Node Terminated")
-    disable_torque(portHandler, packetHandler, DXL_ID)
+    #disable_torque(portHandler, packetHandler, DXL_ID)
     close_port(portHandler,groupBulkRead)
 
 

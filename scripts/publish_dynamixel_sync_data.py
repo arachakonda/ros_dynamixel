@@ -56,23 +56,24 @@ import time
 
 portHandler = PortHandler(DEVICENAME)
 packetHandler = PacketHandler(PROTOCOL_VERSION)
-
+#Initialize GroupSyncRead instace for Current, Position and Velocity
 groupSyncRead = GroupSyncRead(portHandler, packetHandler, ADDR_PRESENT_CURR, LEN_PRESENT_DATA)
-DXL_IDS = [1, 2, 3, 4, 5, 6, 7, 8]
+DXL_IDS = [1,2]
 time.sleep(0.5)
 
-def init_id(pos,vel,curr,id):
-    pos.id = id
-    vel.id = id
-    curr.id = id
+
 
 def syncRead_pos_vel_curr(groupSyncRead, DXL_IDS, pos, vel, curr):
-    dxl_comm_result = groupSyncRead.txRxPacket()
-    if dxl_comm_result != COMM_SUCCESS:
-        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+    #initialize IDs
+    init_ids(pos,vel,curr, DXL_IDS)
+    #perform the syncRead
+    syncRead(groupSyncRead, packetHandler)
+    #check if data is available
+    checkDataAvailable(groupSyncRead, DXL_IDS, ADDR_PRESENT_CURR, LEN_PRESENT_DATA)
+    #extract data from the syncRead
+    extractSyncReadData(groupSyncRead, DXL_IDS, pos, vel, curr)
+
     
-
-
 def pub_sync_pos_vel_curr(packetHandler, groupSyncRead, DXL_IDS, pos, vel, curr):
     pub_pos = rospy.Publisher('positionSync', PositionSync, queue_size=10)
     pub_vel = rospy.Publisher('velocitySync', VelocitySync, queue_size=10)
@@ -83,6 +84,11 @@ def pub_sync_pos_vel_curr(packetHandler, groupSyncRead, DXL_IDS, pos, vel, curr)
     while not rospy.is_shutdown():
         #read data from dynamixels
         syncRead_pos_vel_curr(groupSyncRead, DXL_IDS, pos, vel, curr)
+        print("ID_mcpf:%03d, Position_mcpf:%03d, Velocity_mcpf:%03d, Current_mcpf:%03d" % (pos.id_mcpf, pos.pos_mcpf, vel.vel_mcpf, curr.curr_mcpf))
+        print("ID_mcpa:%03d, Position_mcpa:%03d, Velocity_mcpa:%03d, Current_mcpa:%03d" % (pos.id_mcpa, pos.pos_mcpa, vel.vel_mcpa, curr.curr_mcpa))
+        print("ID_pip:%03d, Position_pip:%03d, Velocity_pip:%03d, Current_pip:%03d" % (pos.id_pip, pos.pos_pip, vel.vel_pip, curr.curr_pip))
+        print("ID_dip:%03d, Position_dip:%03d, Velocity_dip:%03d, Current_dip:%03d" % (pos.id_dip, pos.pos_dip, vel.vel_dip, curr.curr_dip))
+        print("----------------------------------------------------------------------")
         #publish data
         pub_pos.publish(pos)
         pub_vel.publish(vel)
@@ -90,19 +96,39 @@ def pub_sync_pos_vel_curr(packetHandler, groupSyncRead, DXL_IDS, pos, vel, curr)
         #sleep for enough time to match the frequency of publishing
         rate.sleep()
 
+def pingDynamixels(packetHandler, DXL_IDS):
+    for id in DXL_IDS:
+        model_number, dxl_comm_result, dxl_error = packetHandler.ping(portHandler, id)
+        if dxl_comm_result != COMM_SUCCESS:
+            print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+            print("ID:%03d ping Failed" % id)
+            print("Error:%s" % packetHandler.getRxPacketError(dxl_error))
+            DXL_IDS.remove(id)
+        elif dxl_comm_result == COMM_SUCCESS:
+            print("[ID:%03d] ping Succeeded. Dynamixel model number : %d" % (id, model_number))
+    time.sleep(3)
+    return DXL_IDS
+    
+
 def main():
+    global portHandler, packetHandler, groupSyncRead, DXL_IDS
     open_port(portHandler)
     set_baudrate(portHandler, BAUDRATE)
+    #check if the dynamixels with ids in DXL_IDS are connected
+    DXL_IDS = pingDynamixels(packetHandler, DXL_IDS)
     #add IDs for sync read of same data from multiple dynamixels
     add_SyncReadIDs(groupSyncRead, DXL_IDS)
     #sync read data from multiple dynamixels
     try:
-        pos = Position()
-        vel = Velocity()
-        curr = Current()
+        pos = PositionSync()
+        vel = VelocitySync()
+        curr = CurrentSync()
         pub_sync_pos_vel_curr(packetHandler, groupSyncRead, DXL_IDS, pos, vel, curr)
     except rospy.ROSInterruptException:
         print("ROS Node Terminated")
+    
+    #close port
+    close_port_SR(portHandler,groupSyncRead)
 
 
 if __name__ == '__main__':

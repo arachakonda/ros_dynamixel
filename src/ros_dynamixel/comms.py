@@ -36,12 +36,20 @@ def bulkRead(groupBulkRead, packetHandler):
     if dxl_comm_result != COMM_SUCCESS:
         print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
 
-def syncRead(groupSyncRead, id, startAddr, dataLen):
-    try:
-        groupSyncRead.isAvailable(id, startAddr, dataLen)
-    except:
-        print("[ID:%03d] groupSyncRead getdata failed" % (id))
-    
+def syncRead(groupSyncRead, packetHandler):
+    # Sync read the current positions and velocities of the motors
+    dxl_comm_result = groupSyncRead.txRxPacket()
+    if dxl_comm_result != COMM_SUCCESS:
+        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+        quit()
+
+def checkDataAvailable(groupSyncRead, DXL_IDS, startAddr, dataLen):
+    for id in DXL_IDS:
+        dxl_getdata_result = groupSyncRead.isAvailable(id, startAddr, dataLen)
+        if dxl_getdata_result != True:
+            print("[ID:%03d] groupSyncRead getdata failed" % (id))
+            quit()
+
 
 def extractData(groupBulkRead, id, param_addr, param_len):
     # Check if groupbulkread data of Dynamixel#1 is available
@@ -130,3 +138,47 @@ def add_SyncReadIDs(groupSyncRead, DXL_IDS):
             groupSyncRead.addParam(id)
         except:
             print("Motor [ID:%03d] groupSyncRead addition failed" % id)
+
+def clearSR(groupSyncRead):
+    groupSyncRead.clearParam()
+
+def init_ids(pos, vel, curr, DXL_IDS):
+    for i in range(0,len(DXL_IDS)):
+        if(i == 0):
+            pos.id_mcpf = DXL_IDS[i]
+            vel.id_mcpf = DXL_IDS[i]
+            curr.id_mcpf = DXL_IDS[i]
+        elif(i == 1):
+            pos.id_mcpa = DXL_IDS[i]
+            vel.id_mcpa = DXL_IDS[i]
+            curr.id_mcpa = DXL_IDS[i]
+        elif(i == 2):
+            pos.id_pip = DXL_IDS[i]
+            vel.id_pip = DXL_IDS[i]
+            curr.id_pip = DXL_IDS[i]
+        elif(i == 3):
+            pos.id_dip = DXL_IDS[i]
+            vel.id_dip = DXL_IDS[i]
+            curr.id_dip = DXL_IDS[i]
+
+def extractSyncReadData(groupSyncRead, DXL_IDS, pos, vel, curr):
+    for i in range(0, len(DXL_IDS)):
+        try:
+            if(i == 0):
+                pos.pos_mcpf = groupSyncRead.getData(DXL_IDS[i], ADDR_PRESENT_POS, LEN_PRESENT_POS)
+                vel.vel_mcpf = groupSyncRead.getData(DXL_IDS[i], ADDR_PRESENT_VEL, LEN_PRESENT_VEL)
+                curr.curr_mcpf = groupSyncRead.getData(DXL_IDS[i], ADDR_PRESENT_CURR, LEN_PRESENT_CURR)
+            elif(i == 1):
+                pos.pos_mcpa = groupSyncRead.getData(DXL_IDS[i], ADDR_PRESENT_POS, LEN_PRESENT_POS)
+                vel.vel_mcpa = groupSyncRead.getData(DXL_IDS[i], ADDR_PRESENT_VEL, LEN_PRESENT_VEL)
+                curr.curr_mcpa = groupSyncRead.getData(DXL_IDS[i], ADDR_PRESENT_CURR, LEN_PRESENT_CURR)
+            elif(i == 2):
+                pos.pos_pip = groupSyncRead.getData(DXL_IDS[i], ADDR_PRESENT_POS, LEN_PRESENT_POS)
+                vel.vel_pip = groupSyncRead.getData(DXL_IDS[i], ADDR_PRESENT_VEL, LEN_PRESENT_VEL)
+                curr.curr_pip = groupSyncRead.getData(DXL_IDS[i], ADDR_PRESENT_CURR, LEN_PRESENT_CURR)
+            elif(i == 3):
+                pos.pos_dip = groupSyncRead.getData(DXL_IDS[i], ADDR_PRESENT_POS, LEN_PRESENT_POS)
+                vel.vel_dip = groupSyncRead.getData(DXL_IDS[i], ADDR_PRESENT_VEL, LEN_PRESENT_VEL)
+                curr.curr_dip = groupSyncRead.getData(DXL_IDS[i], ADDR_PRESENT_CURR, LEN_PRESENT_CURR)
+        except:
+            print("[ID:%03d] groupSyncRead getdata failed" % (id))
