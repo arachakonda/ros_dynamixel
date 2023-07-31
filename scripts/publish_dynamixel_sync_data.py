@@ -100,7 +100,6 @@ def pingDynamixels(packetHandler, DXL_IDS):
         if dxl_comm_result != COMM_SUCCESS:
             print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
             print("ID:%03d ping Failed" % id)
-            print("Error:%s" % packetHandler.getRxPacketError(dxl_error))
             DXL_IDS.remove(id)
         elif dxl_comm_result == COMM_SUCCESS:
             print("[ID:%03d] ping Succeeded. Dynamixel model number : %d" % (id, model_number))
