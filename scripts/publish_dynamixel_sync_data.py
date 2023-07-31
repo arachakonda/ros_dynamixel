@@ -61,8 +61,6 @@ groupSyncRead = GroupSyncRead(portHandler, packetHandler, ADDR_PRESENT_CURR, LEN
 DXL_IDS = [1,2]
 time.sleep(0.5)
 
-
-
 def syncRead_pos_vel_curr(groupSyncRead, DXL_IDS, pos, vel, curr):
     #initialize IDs
     init_ids(pos,vel,curr, DXL_IDS)
@@ -84,11 +82,11 @@ def pub_sync_pos_vel_curr(packetHandler, groupSyncRead, DXL_IDS, pos, vel, curr)
     while not rospy.is_shutdown():
         #read data from dynamixels
         syncRead_pos_vel_curr(groupSyncRead, DXL_IDS, pos, vel, curr)
-        print("ID_mcpf:%03d, Position_mcpf:%03d, Velocity_mcpf:%03d, Current_mcpf:%03d" % (pos.id_mcpf, pos.pos_mcpf, vel.vel_mcpf, curr.curr_mcpf))
-        print("ID_mcpa:%03d, Position_mcpa:%03d, Velocity_mcpa:%03d, Current_mcpa:%03d" % (pos.id_mcpa, pos.pos_mcpa, vel.vel_mcpa, curr.curr_mcpa))
-        print("ID_pip:%03d, Position_pip:%03d, Velocity_pip:%03d, Current_pip:%03d" % (pos.id_pip, pos.pos_pip, vel.vel_pip, curr.curr_pip))
-        print("ID_dip:%03d, Position_dip:%03d, Velocity_dip:%03d, Current_dip:%03d" % (pos.id_dip, pos.pos_dip, vel.vel_dip, curr.curr_dip))
-        print("----------------------------------------------------------------------")
+        # print("ID_mcpf:%03d, Position_mcpf:%03d, Velocity_mcpf:%03d, Current_mcpf:%03d" % (pos.id_mcpf, pos.pos_mcpf, vel.vel_mcpf, curr.curr_mcpf))
+        # print("ID_mcpa:%03d, Position_mcpa:%03d, Velocity_mcpa:%03d, Current_mcpa:%03d" % (pos.id_mcpa, pos.pos_mcpa, vel.vel_mcpa, curr.curr_mcpa))
+        # print("ID_pip:%03d, Position_pip:%03d, Velocity_pip:%03d, Current_pip:%03d" % (pos.id_pip, pos.pos_pip, vel.vel_pip, curr.curr_pip))
+        # print("ID_dip:%03d, Position_dip:%03d, Velocity_dip:%03d, Current_dip:%03d" % (pos.id_dip, pos.pos_dip, vel.vel_dip, curr.curr_dip))
+        # print("----------------------------------------------------------------------")
         #publish data
         pub_pos.publish(pos)
         pub_vel.publish(vel)
