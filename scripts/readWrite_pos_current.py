@@ -133,7 +133,7 @@ def main():
     set_baudrate(portHandler, BAUDRATE)
     setOpMode(portHandler, packetHandler, DXL_ID, POSITION_CONTROL_MODE)
     enable_torque(portHandler, packetHandler, DXL_ID)
-    add_paramBR(groupBulkRead, DXL_ID, ADDR_PRESENT_CURRENT, LEN_PRESENT_DATA)
+    add_paramBR(groupBulkRead, DXL_ID, ADDR_PRESENT_CURR, LEN_PRESENT_DATA)
     try:
         poscurr = posCurr()
         home_pos(portHandler,packetHandler,DXL_ID,poscurr)
