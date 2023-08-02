@@ -58,7 +58,8 @@ portHandler = PortHandler(DEVICENAME)
 packetHandler = PacketHandler(PROTOCOL_VERSION)
 #Initialize GroupSyncRead instace for Current, Position and Velocity
 groupSyncRead = GroupSyncRead(portHandler, packetHandler, ADDR_PRESENT_CURR, LEN_PRESENT_DATA)
-DXL_IDS = [1,2]
+#the order of the list is [mcpf, mcpa, pip, dip]
+DXL_IDS = [1,2,5]
 time.sleep(0.5)
 
 def syncRead_pos_vel_curr(groupSyncRead, DXL_IDS, pos, vel, curr):
@@ -95,16 +96,19 @@ def pub_sync_pos_vel_curr(packetHandler, groupSyncRead, DXL_IDS, pos, vel, curr)
         rate.sleep()
 
 def pingDynamixels(packetHandler, DXL_IDS):
+    pingable_ids = []
     for id in DXL_IDS:
+        dxl_comm_result = COMM_TX_FAIL
+        print("pinging ID:%03d" % id)
         model_number, dxl_comm_result, dxl_error = packetHandler.ping(portHandler, id)
         if dxl_comm_result != COMM_SUCCESS:
-            print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
-            print("ID:%03d ping Failed" % id)
-            DXL_IDS.remove(id)
+            print("[ID:%03d] ping Failed" % id)
         elif dxl_comm_result == COMM_SUCCESS:
+            pingable_ids.append(id)
             print("[ID:%03d] ping Succeeded. Dynamixel model number : %d" % (id, model_number))
+        
     time.sleep(3)
-    return DXL_IDS
+    return pingable_ids
     
 
 def main():

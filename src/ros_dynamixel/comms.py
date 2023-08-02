@@ -136,6 +136,7 @@ def add_SyncReadIDs(groupSyncRead, DXL_IDS):
     for id in DXL_IDS:
         try:
             groupSyncRead.addParam(id)
+            print("SyncRead ID %d added" % id)
         except:
             print("Motor [ID:%03d] groupSyncRead addition failed" % id)
 
