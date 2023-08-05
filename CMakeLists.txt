@@ -60,13 +60,13 @@ add_message_files(
         PositionSync.msg
         VelocitySync.msg
         CurrentSync.msg
-        SetPosition.msg
-        SetCurrent.msg
-        SetVelocity.msg
         BulkSetItem.msg
         Position.msg
         Velocity.msg
         Current.msg
+        PositionWrite.msg
+        VelocityWrite.msg
+        CurrentWrite.msg
         posCurr.msg
 )
 
@@ -192,9 +192,15 @@ include_directories(
 #   scripts/my_python_script
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
-catkin_install_python(PROGRAMS scripts/read_current.py scripts/read_pos.py scripts/readWrite_pos_current.py scripts/publish_dynamixel_data.py
+catkin_install_python(PROGRAMS 
+scripts/read_current.py 
+scripts/read_pos.py 
+scripts/readWrite_pos_current.py 
+scripts/publish_dynamixel_data.py
 scripts/dynamixel_data_sync_read.py
 scripts/publish_dynamixel_sync_data.py
+scripts/publish_dynamixel_data_write_current.py
+scripts/control_dynamixel_current.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

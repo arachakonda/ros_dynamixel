@@ -85,7 +85,7 @@ def pub_sync_pos_vel_curr(packetHandler, groupSyncRead, DXL_IDS, pos, vel, curr)
     pub_pos = rospy.Publisher('positionSync', PositionSync, queue_size=10)
     pub_vel = rospy.Publisher('velocitySync', VelocitySync, queue_size=10)
     pub_curr = rospy.Publisher('currentSync', CurrentSync, queue_size=10)
-    rospy.init_node('pub_pos_vel_curr', anonymous=True)
+    rospy.init_node('pubw_pos_vel_curr', anonymous=True)
     ros_freq = 10
     rate = rospy.Rate(ros_freq) # 10hz
     while not rospy.is_shutdown():
@@ -113,7 +113,9 @@ def pingDynamixels(packetHandler, DXL_IDS):
         
     time.sleep(3)
     return pingable_ids
-    
+
+def write_currentCallback(data):
+    print(data)
 
 def main():
     global portHandler, packetHandler, groupSyncRead, DXL_IDS
@@ -128,6 +130,7 @@ def main():
         pos = PositionSync()
         vel = VelocitySync()
         curr = CurrentSync()
+        sub = rospy.Subscriber('currentWrite', CurrentWrite, write_currentCallback)
         pub_sync_pos_vel_curr(packetHandler, groupSyncRead, DXL_IDS, pos, vel, curr)
     except rospy.ROSInterruptException:
         print("ROS Node Terminated")
