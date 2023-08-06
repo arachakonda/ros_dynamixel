@@ -58,6 +58,7 @@ portHandler = PortHandler(DEVICENAME)
 packetHandler = PacketHandler(PROTOCOL_VERSION)
 #Initialize GroupSyncRead instace for Current, Position and Velocity
 groupSyncRead = GroupSyncRead(portHandler, packetHandler, ADDR_PRESENT_CURR, LEN_PRESENT_DATA)
+groupSyncWrite = GroupSyncWrite(portHandler, packetHandler, ADDR_GOAL_CURR, LEN_GOAL_CURR)
 #the order of the list is [mcpf, mcpa, pip, dip]
 DXL_IDS = [1,2,5]
 time.sleep(0.5)
@@ -115,6 +116,69 @@ def pingDynamixels(packetHandler, DXL_IDS):
     return pingable_ids
 
 def write_currentCallback(data):
+    #syncwrite into dynamixel
+
+    # uint8_t dxl_error = 0;
+    # int dxl_comm_result = COMM_TX_FAIL;
+    # int dxl_addparam_result = false;
+    # uint8_t param_goal_position1[4];
+    # uint8_t param_goal_position2[4];
+
+    # // Position Value of X series is 4 byte data. For AX & MX(1.0) use 2 byte data(uint16_t) for the Position Value.
+    # uint32_t position1 = (unsigned int)msg->position1; // Convert int32 -> uint32
+    # param_goal_position1[0] = DXL_LOBYTE(DXL_LOWORD(position1));
+    # param_goal_position1[1] = DXL_HIBYTE(DXL_LOWORD(position1));
+    # param_goal_position1[2] = DXL_LOBYTE(DXL_HIWORD(position1));
+    # param_goal_position1[3] = DXL_HIBYTE(DXL_HIWORD(position1));
+    # uint32_t position2 = (unsigned int)msg->position2; // Convert int32 -> uint32
+    # param_goal_position2[0] = DXL_LOBYTE(DXL_LOWORD(position2));
+    # param_goal_position2[1] = DXL_HIBYTE(DXL_LOWORD(position2));
+    # param_goal_position2[2] = DXL_LOBYTE(DXL_HIWORD(position2));
+    # param_goal_position2[3] = DXL_HIBYTE(DXL_HIWORD(position2));
+
+    # // Write Goal Position (length : 4 bytes)
+    # // When writing 2 byte data to AX / MX(1.0), use write2ByteTxRx() instead.
+    # dxl_addparam_result = groupSyncWrite.addParam((uint8_t)msg->id1, param_goal_position1);
+    # if (dxl_addparam_result != true) {
+    #     ROS_ERROR( "Failed to addparam to groupSyncWrite for Dynamixel ID %d", msg->id1);
+    # }
+
+    # dxl_addparam_result = groupSyncWrite.addParam((uint8_t)msg->id2, param_goal_position2);
+    # if (dxl_addparam_result != true) {
+    #     ROS_ERROR( "Failed to addparam to groupSyncWrite for Dynamixel ID %d", msg->id2);
+    # }
+
+    # dxl_comm_result = groupSyncWrite.txPacket();
+    # if (dxl_comm_result == COMM_SUCCESS) {
+    #     ROS_INFO("setPosition : [ID:%d] [POSITION:%d]", msg->id1, msg->position1);
+    #     ROS_INFO("setPosition : [ID:%d] [POSITION:%d]", msg->id2, msg->position2);
+    # } else {
+    #     ROS_ERROR("Failed to set position! Result: %d", dxl_comm_result);
+    # }
+
+    # groupSyncWrite.clearParam();
+
+    dxl_error = 0
+    dxl_comm_result = COMM_TX_FAIL
+    dxl_addparam_result = False
+
+    param_goal_current = [DXL_LOBYTE(data.current), DXL_HIBYTE(data.current)]
+    print(param_goal_current)
+
+    for id in DXL_IDS:
+        dxl_addparam_result = groupSyncWrite.addParam(id, param_goal_current)
+        if dxl_addparam_result != True:
+            print("[ID:%03d] groupSyncWrite addparam failed" % id)
+        else:
+            print("[ID:%03d] groupSyncWrite addparam success" % id)
+    
+    dxl_comm_result = groupSyncWrite.txPacket()
+    if dxl_comm_result != COMM_SUCCESS:
+        print("failed to set current")
+    else:
+        print("succeeded to set current")
+    groupSyncWrite.clearParam()
+
     print(data)
 
 def main():
@@ -123,9 +187,13 @@ def main():
     set_baudrate(portHandler, BAUDRATE)
     #check if the dynamixels with ids in DXL_IDS are connected
     DXL_IDS = pingDynamixels(packetHandler, DXL_IDS)
+    for id in DXL_IDS:
+        setOpMode(portHandler, packetHandler, id, CURRENT_CONTROL_MODE)
     #add IDs for sync read of same data from multiple dynamixels
     add_SyncReadIDs(groupSyncRead, DXL_IDS)
     #sync read data from multiple dynamixels
+    for id in DXL_IDS:
+        enable_torque(portHandler, packetHandler, id)
     try:
         pos = PositionSync()
         vel = VelocitySync()
@@ -135,6 +203,8 @@ def main():
     except rospy.ROSInterruptException:
         print("ROS Node Terminated")
     
+    for id in DXL_IDS:
+        disable_torque(portHandler, packetHandler, id)
     #close port
     close_port_SR(portHandler,groupSyncRead)
 

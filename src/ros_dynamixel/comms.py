@@ -140,6 +140,14 @@ def add_SyncReadIDs(groupSyncRead, DXL_IDS):
         except:
             print("Motor [ID:%03d] groupSyncRead addition failed" % id)
 
+def add_SyncWriteIDParams(groupSyncWrite, DXL_IDS, param_addr, param_len):
+    for id in DXL_IDS:
+        try:
+            groupSyncWrite.addParam(id, param_len, param_addr)
+            print("SyncWrite ID %d added" % id)
+        except:
+            print("Motor [ID:%03d] groupSyncWrite addition failed" % id)
+
 def clearSR(groupSyncRead):
     groupSyncRead.clearParam()
 
