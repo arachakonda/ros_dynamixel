@@ -12,6 +12,7 @@ def pub_dynamixel_control_current(current):
     while not rospy.is_shutdown():
         current.id = 1
         current.current = 10
+        print(current)
         pub.publish(current)
         rate.sleep()
 

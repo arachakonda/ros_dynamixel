@@ -130,7 +130,7 @@ def main():
         pos = PositionSync()
         vel = VelocitySync()
         curr = CurrentSync()
-        sub = rospy.Subscriber('currentWrite', CurrentWrite, write_currentCallback)
+        rospy.Subscriber('currentControl', CurrentWrite, write_currentCallback)
         pub_sync_pos_vel_curr(packetHandler, groupSyncRead, DXL_IDS, pos, vel, curr)
     except rospy.ROSInterruptException:
         print("ROS Node Terminated")
